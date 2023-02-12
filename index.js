@@ -34,7 +34,6 @@ const job = schedule.scheduleJob("*/1 * * * *", async () => {
   for (const i in urls) {
     const { url, _id } = urls[i];
     axios.get(url).catch(async (res) => {
-      console.log(res);
       await University.findByIdAndUpdate(_id, {
         $set: { isAccessible: false },
       });
