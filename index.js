@@ -42,6 +42,10 @@ const job = schedule.scheduleJob("*/1 * * * *", async () => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.status(200).json({success: true})
+})
+
 app.get("/api/unions", async (req, res) => {
   try {
     const universites = await University.find({}, "title url isAccessible");
