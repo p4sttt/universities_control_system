@@ -3,6 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
 const University = require("./models/Univer");
+const Log = require("./models/Logs");
 const { default: axios } = require("axios");
 
 require("dotenv").config();
@@ -11,16 +12,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const job = schedule.scheduleJob("*/1 * * * *", async () => {
+schedule.scheduleJob("*/30 * * * * *", async () => {
   const urls = await University.find({});
   for (const i in urls) {
-    const { url, _id } = urls[i];
-    axios.get(url).catch(async (res) => {
-      console.log(res);
-      await University.findByIdAndUpdate(_id, {
-        $set: { isAccessible: false },
+    const { url, title, _id } = urls[i];
+    axios
+      .get(url)
+      .then(async (res) => {
+        await University.findByIdAndUpdate(_id, {
+          $set: { isAccessible: true },
+        });
+      })
+      .catch(async (res) => {
+        await University.findByIdAndUpdate(_id, {
+          $set: { isAccessible: false },
+        });
+        const log = new Log({
+          title: title,
+          text: res,
+        });
+        await log.save();
       });
-    });
   }
 });
 
@@ -44,7 +56,7 @@ app.post("/api/union", async (req, res) => {
     res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ success: false });
+    res.status(400).json({ message: "Oh... something went wrong" });
   }
 });
 
