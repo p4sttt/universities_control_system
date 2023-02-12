@@ -36,6 +36,10 @@ schedule.scheduleJob("*/30 * * * * *", async () => {
   }
 });
 
+schedule.scheduleJob("1", async () => {
+  Log.remove({})
+})
+
 app.get("/api/unions", async (req, res) => {
   try {
     const universites = await University.find({}, "title url isAccessible");
