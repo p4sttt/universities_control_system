@@ -1,9 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
 const University = require("./models/Univer");
+const authRouter = require("./routes/auth/authRouter");
 const { default: axios } = require("axios");
 
 require("dotenv").config();
@@ -12,38 +13,47 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRouter);
+
 async function sendMail() {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.ADRESS,
-      pass: process.env.PASSWORD
-    }
-  })
+      pass: process.env.PASSWORD,
+    },
+  });
   transporter.sendMail({
     from: {
       name: "vuzopedia",
-      address: process.env.ADRESS
+      address: process.env.ADRESS,
     },
-    to: process.env.ADRESSES
-  })
+    to: process.env.ADRESSES,
+  });
 }
 
 const job = schedule.scheduleJob("*/1 * * * *", async () => {
   const urls = await University.find({});
   for (const i in urls) {
     const { url, _id } = urls[i];
-    axios.get(url).catch(async (res) => {
-      await University.findByIdAndUpdate(_id, {
-        $set: { isAccessible: false },
+    axios
+      .get(url)
+      .then(async (res) => {
+        await University.findByIdAndUpdate(_id, {
+          $set: { isAccessible: true },
+        });
+      })
+      .catch(async (res) => {
+        await University.findByIdAndUpdate(_id, {
+          $set: { isAccessible: false },
+        });
       });
-    });
   }
 });
 
 app.get("/", (req, res) => {
-  res.status(200).json({success: true})
-})
+  res.status(200).json({ success: true });
+});
 
 app.get("/api/unions", async (req, res) => {
   try {
