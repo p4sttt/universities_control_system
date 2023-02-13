@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "server": "nodemon index.js",
+    "bot": "nodemon telegram.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.9.0",
     "node-schedule": "^2.1.1",
+    "node-telegram-bot-api": "^0.61.0",
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
     "vercel": "^28.15.3"
