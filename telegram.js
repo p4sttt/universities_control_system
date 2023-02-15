@@ -26,6 +26,10 @@ async function sendNotify({ title, url }) {
   }
 }
 
+bot.setMyCommands([
+  { command: "/universities", description: "все университеты" },
+]);
+
 const bot = new TelegramApi(process.env.TELEGRAM_BOT, { polling: true });
 bot.on("message", async (msg) => {
   const { text, chat } = msg;
@@ -46,15 +50,6 @@ bot.on("message", async (msg) => {
     await bot.sendMessage(chat.id, message, {
       parse_mode: "MarkdownV2",
     });
-  }
-  if (text == "/notify") {
-    const universites = await University.find(
-      { isAccessible: false },
-      "title url isAccessible"
-    );
-    for(let university of universites){
-      sendNotify(university)
-    }
   }
 });
 
