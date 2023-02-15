@@ -16,16 +16,26 @@ const toString = ({ title, url, isAccessible }) => {
   }\n \n`;
 };
 
+async function sendNotify({ title, url }) {
+  const chats = await TelegramUser.find({}, "chat");
+  for (let chat of chats) {
+    await bot.sendMessage(
+      chat.chat,
+      `Университет: [${title}](${url}) временно не доступен`
+    );
+  }
+}
+
 const bot = new TelegramApi(process.env.TELEGRAM_BOT, { polling: true });
 bot.on("message", async (msg) => {
   const { text, chat } = msg;
-  const candidate = await TelegramUser.findOne({chat: chat.id})
-  if(!candidate){
+  const candidate = await TelegramUser.findOne({ chat: chat.id });
+  if (!candidate) {
     const telegramUser = new TelegramUser({
       username: chat.username,
-      chat: chat.id
-    })
-    await telegramUser.save()
+      chat: chat.id,
+    });
+    await telegramUser.save();
   }
   if (text === "/universities") {
     const universites = await University.find({}, "title url isAccessible");
@@ -34,16 +44,18 @@ bot.on("message", async (msg) => {
       message = message + toString(universites[i]);
     }
     await bot.sendMessage(chat.id, message, {
-      parse_mode: "MarkdownV2"
+      parse_mode: "MarkdownV2",
     });
+  }
+  if (text == "/notify") {
+    const universites = await University.find(
+      { isAccessible: false },
+      "title url isAccessible"
+    );
+    for(let university of universites){
+      sendNotify(university)
+    }
   }
 });
 
-async function sendNotify({title, url}) {
-  const chats = TelegramUser.find({}, "chat")
-  for(const chat of chats){
-    await bot.sendMessage(chat, `Университет: [${title}](${url}) временно не доступен`)
-  }
-}
-
-exports.sendNotify = sendNotify
+exports.sendNotify = sendNotify;

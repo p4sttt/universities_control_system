@@ -13,15 +13,16 @@ app.use(express.json());
 
 //роуты
 const authRouter = require("./routes/auth/authRouter");
-const univerRouter = require("./routes/universities/univerRouter")
+const univerRouter = require("./routes/universities/univerRouter");
+const { sendNotify } = require("./telegram");
 app.use("/api/auth", authRouter);
 app.use("/api/university", univerRouter)
 
 
 schedule.scheduleJob("*/1 * * * *", async () => {
-  const urls = await University.find({});
-  for (const i in urls) {
-    const { url, _id } = urls[i];
+  const universites = await University.find({});
+  for (let university of universites) {
+    const { url, _id } = university;
     axios
       .get(url)
       .then(async (res) => {
@@ -33,6 +34,7 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         await University.findByIdAndUpdate(_id, {
           $set: { isAccessible: false },
         });
+        sendNotify(university)
       });
   }
 });
