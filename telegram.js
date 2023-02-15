@@ -9,6 +9,7 @@ mongoose.connect(process.env.DB_URI, () => {
   console.log("bot working");
   console.log("db connected");
 });
+const bot = new TelegramApi(process.env.TELEGRAM_BOT, { polling: true });
 
 const toString = ({ title, url, isAccessible }) => {
   return `Университет: [${title}](${url})\nДоступен: ${
@@ -30,7 +31,6 @@ bot.setMyCommands([
   { command: "/universities", description: "все университеты" },
 ]);
 
-const bot = new TelegramApi(process.env.TELEGRAM_BOT, { polling: true });
 bot.on("message", async (msg) => {
   const { text, chat } = msg;
   const candidate = await TelegramUser.findOne({ chat: chat.id });
