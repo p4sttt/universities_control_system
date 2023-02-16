@@ -2,7 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
+const nodemailer = require("nodemailer")
 const University = require("./models/Univer")
+const User = require("./models/User")
 const { default: axios } = require("axios");
 
 require("dotenv").config();
@@ -17,6 +19,37 @@ const univerRouter = require("./routes/universities/univerRouter");
 const { sendNotify } = require("./telegram");
 app.use("/api/auth", authRouter);
 app.use("/api/university", univerRouter)
+
+async function sendMail({title}) {
+  const mailsDB = await User.find({}, "email")
+  let mails = []
+  for(let mail in mailsDB){
+    mails.push(mail.email)
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: "587",
+    secure: false,
+    auth: {
+      user: "universitycontrolsystem@gmail.com",
+      pass: "X3C-zgP-b5N-2t6"
+    }
+  })
+  const mailOptions = {
+    from: "universitycontrolsystem@gmail.com",
+    to: mails,
+    subject: "Сайт университета временно недоступен",
+    text: `сайт университета ${title} временно недоступен`
+  }
+  transporter.sendMail(mailOptions, function(error, info) {
+    if(error){
+      console.log(error)
+    }else{
+      console.log(f`mail send ${info.response}`)
+    }
+  })
+}
 
 
 schedule.scheduleJob("*/1 * * * *", async () => {
@@ -34,7 +67,8 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         await University.findByIdAndUpdate(_id, {
           $set: { isAccessible: false },
         });
-        sendNotify(university)
+        // sendNotify(university)
+        // sendMail(university)
       });
   }
 });
