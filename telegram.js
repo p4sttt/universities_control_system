@@ -12,16 +12,6 @@ const toString = ({ title, url, isAccessible }) => {
   }\n \n`;
 };
 
-async function sendNotify({ title, url }) {
-  const chats = await TelegramUser.find({}, "chat");
-  for (let chat of chats) {
-    await bot.sendMessage(
-      chat.chat,
-      `Университет: [${title}](${url}) временно не доступен`
-    );
-  }
-}
-
 bot.setMyCommands([
   { command: "/start", description: "lkzsjernfdlksjdv" },
   { command: "/universities", description: "доступность университетов" },
@@ -59,7 +49,10 @@ bot.on("message", async (msg) => {
     const user = await User.findOne({ email: email });
     if (user) {
       if (user.conconnectedTelegram) {
-        return bot.sendMessage(chat.id, "У этого пользователся уже подключен telegram")
+        return await bot.sendMessage(
+          chat.id,
+          "У этого пользователся уже подключен telegram"
+        );
       }
       const hashPassword = user.password;
       const validPassword = bcrypt.compareSync(password, hashPassword);
@@ -68,13 +61,18 @@ bot.on("message", async (msg) => {
         await User.findByIdAndUpdate(id, {
           $set: { conconnectedTelegram: true, chatId: chat.id },
         });
-        return bot.sendMessage(chat.id, "Авторизация прошла успешно");
+        await bot.sendMessage(chat.id, "Авторизация прошла успешно");
+        return await bot.sendMessage(
+          chat.id,
+          "Теперь вы будете получать уведомленя, если сайт одного из ВУЗов перестанет работать\n \nЧтобы отказаться от оповещений напишите `/cancelnotifications`",
+          { parse_mode: "Markdown" }
+        );
       }
-      return bot.sendMessage(chat.id, "Неверная почта или пароль");
+      return await bot.sendMessage(chat.id, "Неверная почта или пароль");
     }
-    return bot.sendMessage(chat.id, "Такого пользователся не существует");
+    return await bot.sendMessage(chat.id, "Такого пользователся не существует");
   }
-  return bot.sendMessage(chat.id, "Я не знаю такой команды");
+  return await bot.sendMessage(chat.id, "Я не знаю такой команды");
 });
 
-exports.sendNotify = sendNotify;
+exports.bot = bot;

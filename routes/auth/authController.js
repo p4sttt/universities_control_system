@@ -9,7 +9,7 @@ module.exports = class authController {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ message: "ошибка валидации" });
+        return res.status(400).json({ message: errors });
       }
       const { email, name, password } = req.body;
       const candidate = await User.findOne({ email: email });

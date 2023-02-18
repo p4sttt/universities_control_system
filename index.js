@@ -6,14 +6,16 @@ const nodemailer = require("nodemailer");
 const University = require("./models/Univer");
 const User = require("./models/User");
 const { default: axios } = require("axios");
-const { sendNotify } = require("./telegram");
+const { bot } = require("./telegram");
 
 require("dotenv").config();
 
 const app = express();
-app.use(cors({
-  origin: "*"
-}));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 
 //роуты
@@ -59,6 +61,7 @@ schedule.scheduleJob("*/1 * * * *", async () => {
   const universites = await University.find({});
   for (let university of universites) {
     const { url, _id } = university;
+    const isAccessibleLast = await University.findById(_id, "isAccessible");
     axios
       .get(url)
       .then(async (res) => {
@@ -70,8 +73,9 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         await University.findByIdAndUpdate(_id, {
           $set: { isAccessible: false },
         });
-        // sendNotify(university)
-        // sendMail(university)
+        if (isAccessibleLast == true) {
+          
+        }
       });
   }
 });
