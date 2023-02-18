@@ -12,6 +12,32 @@ const toString = ({ title, url, isAccessible }) => {
   }\n \n`;
 };
 
+const sendNotify = async (university, isWorkingNow) => {
+  for (let user of university.subscribers) {
+    if (user.telegram.conconnected && user.telegram.notifications) {
+      if (isWorkingNow) {
+        await bot.sendMessage(
+          user.telegram.chatId,
+          "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/192/22.webp"
+        );
+        return await bot.sendMessage(
+          user.telegram.chatId,
+          `Cайт ВУЗа [${university.title}](${university.url}) возобновил свою работу`
+        );
+      } else {
+        await bot.sendMessage(
+          user.telegram.chatId,
+          "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/23.webp"
+        );
+        return await bot.sendMessage(
+          user.telegram.chatId,
+          `К сожалению сайт ВУЗа [${university.title}](${university.url}) временно не работает`
+        );
+      }
+    }
+  }
+};
+
 bot.setMyCommands([
   { command: "/start", description: "lkzsjernfdlksjdv" },
   { command: "/universities", description: "доступность университетов" },
@@ -76,3 +102,4 @@ bot.on("message", async (msg) => {
 });
 
 exports.bot = bot;
+exports.sendNotify = sendNotify;

@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const University = require("./models/Univer");
 const User = require("./models/User");
 const { default: axios } = require("axios");
-const { bot } = require("./telegram");
+const { bot, sendNotify } = require("./telegram");
 
 require("dotenv").config();
 
@@ -68,13 +68,16 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         await University.findByIdAndUpdate(_id, {
           $set: { isAccessible: true },
         });
+        if (isAccessibleLast == false) {
+          sendNotify(university, true);
+        }
       })
       .catch(async (res) => {
         await University.findByIdAndUpdate(_id, {
           $set: { isAccessible: false },
         });
         if (isAccessibleLast == true) {
-          
+          sendNotify(university, false);
         }
       });
   }

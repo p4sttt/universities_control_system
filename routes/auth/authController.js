@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Role = require("../../models/Role");
 const User = require("../../models/User");
+const University = require("../../models/Univer");
 
 module.exports = class authController {
   async register(req, res) {
@@ -70,7 +71,59 @@ module.exports = class authController {
       await User.findByIdAndUpdate(id, {
         $set: { roles: ["ADMIN"] },
       });
-      res.status(200).json({message: "успех"});
+      res.status(200).json({ message: "успех" });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async setNotifications(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { set } = req.body;
+      const { token } = req.headers;
+      const { id } = jwt.decode(token);
+
+      await User.findByIdAndUpdate(id, { $set: { notifications: set } });
+      return res.status(200).json({ message: "успех" });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async subscribe(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { universityId } = req.body;
+      const { token } = req.headers;
+      const { id } = jwt.decode(token);
+
+      const university = await University.findById(universityId);
+      university.subscribers.push(id);
+      await university.save();
+      return res.status(200).json({ message: "успех" });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async comment(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { text, universityId } = req.body;
+      const { token } = req.headers;
+      const { id } = jwt.decode(token);
+
+      const university = await University.findById(universityId);
+      university.comments.push({ text: text, from: id });
+      await university.save();
+      return res.status(200).json({ message: "успех" });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
