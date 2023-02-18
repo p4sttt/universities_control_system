@@ -42,6 +42,7 @@ bot.setMyCommands([
   { command: "/start", description: "lkzsjernfdlksjdv" },
   { command: "/universities", description: "доступность университетов" },
   { command: "/auth", description: "Авторизация" },
+  { command: "/cancelnotifications", description: "Отключить оповещение" },
 ]);
 
 bot.on("message", async (msg) => {
@@ -83,10 +84,9 @@ bot.on("message", async (msg) => {
       const hashPassword = user.password;
       const validPassword = bcrypt.compareSync(password, hashPassword);
       if (validPassword) {
-        const id = user._id;
-        await User.findByIdAndUpdate(id, {
-          $set: { conconnectedTelegram: true, chatId: chat.id },
-        });
+        user.telegram.chatId = chat.id;
+        user.telegram.conconnected = true;
+        await user.save();
         await bot.sendMessage(chat.id, "Авторизация прошла успешно");
         return await bot.sendMessage(
           chat.id,
