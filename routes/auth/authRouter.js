@@ -42,6 +42,7 @@ router.post(
   authMiddleware,
   controller.subscribe
 );
+router.get("/getSubscribes", authMiddleware, controller.getSubscribes);
 router.post(
   "/comment",
   [

@@ -110,6 +110,25 @@ module.exports = class authController {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
+  async getSubscribes(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { token } = req.headers;
+      const { id } = jwt.decode(token);
+      const universities = await University.find(
+        {
+          subscribers: { $in: [id] },
+        },
+        "title url isAccessible"
+      );
+      return res.status(200).json({ universities });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
   async comment(req, res) {
     try {
       const errors = validationResult(req);
