@@ -13,12 +13,17 @@
 
 > POST `/api/university/create` - добавляет новый университет, нужно отправить **title**, **url**
 
-> POST `/api/university/add` - создает заявку на добавление университетаб нужно отправить **title**, **url**, **token**
-
 #### Авторизация:
 > POST `/api/auth/login` - возвращает токен(действует в течении 48 часов), нужно отправить **email**, **password**
 
 > POST `/api/auth/create` - - возвращает токен(действует в течении 48 часов), нужно отправить **email**, **name**, **password**
+
+#### Заявки:
+> POST `/api/application/create` - создает заявку на добавление университетаб нужно отправить **title**, **url**, **token**
+
+> GET `/api/application/get` - возвращается все заявки
+
+> POST `/api/application/distribute` - позволяет отклонить и принять заявки нужно отправить **applicationId**, **add**
 
 
 ## Обработка ошибок:
