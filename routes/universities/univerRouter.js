@@ -1,6 +1,7 @@
 const Router = require("express");
-const { check, body } = require("express-validator");
+const { body } = require("express-validator");
 const univerController = require("./univeController");
+const adminMiddleware = require("../middlewares/adminMiddleware");
 
 const router = Router();
 const controller = new univerController();
@@ -12,16 +13,8 @@ router.post(
     body("title", "Некорректное название").notEmpty(),
     body("url", "Некорректная ссылка").notEmpty().isURL(),
   ],
+  adminMiddleware,
   controller.create
-);
-router.post(
-  "/add",
-  [
-    body("title", "Некорректное название").notEmpty(),
-    body("url", "Некорректная ссылка").notEmpty().isURL(),
-    body("from").notEmpty().isJWT(),
-  ],
-  controller.addApplication
 );
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const Router = require("express");
-const { check, body } = require("express-validator");
+const { body } = require("express-validator");
 const authController = require("./authController");
 
 const router = Router();
@@ -18,7 +18,6 @@ router.post(
   ],
   controller.register
 );
-
 router.post(
   "/login",
   [
@@ -29,7 +28,6 @@ router.post(
   ],
   controller.login
 );
+router.post("/admin", controller.addAdminPermission);
 
-router.get("/create/role", controller.createRole);
-
-module.exports = router
+module.exports = router;

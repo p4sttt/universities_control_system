@@ -25,8 +25,11 @@ module.exports = class authController {
         roles: [value],
       });
       await user.save();
-      const { id } = user._id;
-      const token = jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "48h" });
+      const id = user._id;
+      const roles = user.roles;
+      const token = jwt.sign({ id: id, roles: roles }, process.env.JWT_KEY, {
+        expiresIn: "48h",
+      });
       return res.status(200).json({ token });
     } catch (error) {
       console.log(error);
@@ -50,22 +53,24 @@ module.exports = class authController {
       if (!validPassword) {
         res.status(400).json({ message: "неверный логин или пароль" });
       }
-      const { id } = user._id;
-      const token = jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "48h" });
+      const id = user._id;
+      const roles = user.roles;
+      const token = jwt.sign({ id: id, roles: roles }, process.env.JWT_KEY, {
+        expiresIn: "48h",
+      });
       return res.status(200).json({ token });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
-
-  async createRole(req, res) {
+  async addAdminPermission(req, res) {
     try {
-      const userRole = new Role();
-      const adminRole = new Role({ value: "ADMIN" });
-      await userRole.save();
-      await adminRole.save();
-      res.status(200).json();
+      const id = req.body.id;
+      await User.findByIdAndUpdate(id, {
+        $set: { roles: ["ADMIN"] },
+      });
+      res.status(200).json({message: "успех"});
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }

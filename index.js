@@ -2,10 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
-const nodemailer = require("nodemailer")
-const University = require("./models/Univer")
-const User = require("./models/User")
+const nodemailer = require("nodemailer");
+const University = require("./models/Univer");
+const User = require("./models/User");
 const { default: axios } = require("axios");
+const { sendNotify } = require("./telegram");
 
 require("dotenv").config();
 
@@ -16,15 +17,16 @@ app.use(express.json());
 //роуты
 const authRouter = require("./routes/auth/authRouter");
 const univerRouter = require("./routes/universities/univerRouter");
-const { sendNotify } = require("./telegram");
+const applicationRouter = require("./routes/applications/applicationsRouter");
 app.use("/api/auth", authRouter);
-app.use("/api/university", univerRouter)
+app.use("/api/university", univerRouter);
+app.use("/api/application", applicationRouter);
 
-async function sendMail({title}) {
-  const mailsDB = await User.find({}, "email")
-  let mails = []
-  for(let mail in mailsDB){
-    mails.push(mail.email)
+async function sendMail({ title }) {
+  const mailsDB = await User.find({}, "email");
+  let mails = [];
+  for (let mail in mailsDB) {
+    mails.push(mail.email);
   }
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -33,24 +35,23 @@ async function sendMail({title}) {
     secure: false,
     auth: {
       user: "universitycontrolsystem@gmail.com",
-      pass: "X3C-zgP-b5N-2t6"
-    }
-  })
+      pass: "X3C-zgP-b5N-2t6",
+    },
+  });
   const mailOptions = {
     from: "universitycontrolsystem@gmail.com",
     to: mails,
     subject: "Сайт университета временно недоступен",
-    text: `сайт университета ${title} временно недоступен`
-  }
-  transporter.sendMail(mailOptions, function(error, info) {
-    if(error){
-      console.log(error)
-    }else{
-      console.log(f`mail send ${info.response}`)
+    text: `сайт университета ${title} временно недоступен`,
+  };
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(f`mail send ${info.response}`);
     }
-  })
+  });
 }
-
 
 schedule.scheduleJob("*/1 * * * *", async () => {
   const universites = await University.find({});
