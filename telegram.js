@@ -14,28 +14,47 @@ const toString = ({ title, url, isAccessible }) => {
 
 const sendNotify = async (university, isWorkingNow) => {
   for (let id of university.subscribers) {
-    const user = await User.findById(id)
+    const user = await User.findById(id);
     if (user.telegram.connected && user.telegram.notifications) {
       if (isWorkingNow) {
-        await bot.sendMessage(
+        await bot.sendSticker(
           user.telegram.chatId,
           "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/192/22.webp"
         );
         return await bot.sendMessage(
           user.telegram.chatId,
-          `Cайт ВУЗа [${university.title}](${university.url}) возобновил свою работу`
+          `Cайт ВУЗа [${university.title}](${university.url}) возобновил свою работу`,
+          { parse_mode: "Markdown" }
         );
       } else {
-        await bot.sendMessage(
+        await bot.sendSticker(
           user.telegram.chatId,
           "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/23.webp"
         );
         return await bot.sendMessage(
           user.telegram.chatId,
-          `К сожалению сайт ВУЗа [${university.title}](${university.url}) временно не работает`
+          `К сожалению сайт ВУЗа [${university.title}](${university.url}) временно не работает`,
+          { parse_mode: "Markdown" }
         );
       }
     }
+  }
+};
+
+const attackNotify = async () => {
+  const users = await User.find({
+    "telegram.connected": true,
+    "telegram.notifications": true,
+  });
+  for (let user of users) {
+    bot.sendMessage(
+      user.telegram.chatId,
+      "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/12.webp"
+    );
+    return bot.sendMessage(
+      user.telegram.chatId,
+      "Происходит ддос атака на сайты ВУЗов"
+    );
   }
 };
 
@@ -76,8 +95,6 @@ bot.on("message", async (msg) => {
     const email = text.split(" ")[1];
     const password = text.split(" ")[2];
     const user = await User.findOne({ email: email });
-    await bot.sendMessage(chat.id, `${email}, ${password}`)
-    console.log(user)
     if (user) {
       if (user.telegram.connected) {
         return await bot.sendMessage(
@@ -131,3 +148,4 @@ bot.on("message", async (msg) => {
 
 exports.bot = bot;
 exports.sendNotify = sendNotify;
+exports.attackNotify = attackNotify;
