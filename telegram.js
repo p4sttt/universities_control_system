@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const bot = new TelegramApi(process.env.TELEGRAM_BOT, { polling: true });
+console.log("bot working")
 
 const toString = ({ title, url, isAccessible }) => {
   return `Университет: [${title}](${url})\nДоступен: ${
@@ -47,11 +48,11 @@ const attackNotify = async () => {
     "telegram.notifications": true,
   });
   for (let user of users) {
-    bot.sendMessage(
+    await bot.sendSticker(
       user.telegram.chatId,
       "https://tlgrm.eu/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/12.webp"
     );
-    return bot.sendMessage(
+    return await bot.sendMessage(
       user.telegram.chatId,
       "Происходит ддос атака на сайты ВУЗов"
     );
