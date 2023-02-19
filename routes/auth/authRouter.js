@@ -59,6 +59,14 @@ router.post(
   controller.comment
 );
 router.post(
+  "/getComment",
+  [
+    body("universityId").notEmpty().isMongoId(),
+  ],
+  authMiddleware,
+  controller.getComments
+);
+router.post(
   "/rating",
   [
     body("rating")
