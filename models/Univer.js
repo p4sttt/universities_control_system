@@ -7,7 +7,7 @@ const Univer = new Schema({
   isAccessible: { type: Boolean, default: true, require: true, unique: false },
   rating: { type: Number, default: 0.0 },
   ratingCount: { type: Number, default: 0 },
-  subscribers: [{type: String}],
+  subscribers: [{type: mongoose.Types.ObjectId}],
   comments: [
     {
       text: { type: String, required: false, unique: false },
