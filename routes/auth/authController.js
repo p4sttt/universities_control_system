@@ -75,7 +75,7 @@ module.exports = class authController {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
-  }
+  } 
   async addAdminPermission(req, res) {
     try {
       const id = req.body.id;
