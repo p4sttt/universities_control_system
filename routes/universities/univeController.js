@@ -4,8 +4,21 @@ const University = require("../../models/Univer");
 module.exports = class univeController {
   async getUniversities(req, res) {
     try {
-      const universites = await University.find({}, "title url isAccessible comments rating ratingCount");
-      res.status(200).json({ universites });
+      const universitesList = await University.find({}, "title url isAccessible comments rating ratingCount");
+      const universities = []
+      for(let university of universitesList){
+        const {_id, title, url, isAccessible, comments, rating, ratingCount} = university
+        const ratinG = rating/ratingCount.length ? rating/ratingCount.length : 0
+        universities.push({
+          _id: _id,
+          title: title,
+          url: url,
+          isAccessible: isAccessible,
+          comments: comments,
+          rating: ratinG
+        })
+      }
+      res.status(200).json({ universities });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
