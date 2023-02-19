@@ -43,6 +43,7 @@ bot.setMyCommands([
   { command: "/universities", description: "доступность университетов" },
   { command: "/auth", description: "Авторизация" },
   { command: "/cancelnotifications", description: "Отключить оповещение" },
+  { command: "/setnotifications", description: "Включить оповещение" },
 ]);
 
 bot.on("message", async (msg) => {
@@ -97,6 +98,30 @@ bot.on("message", async (msg) => {
       return await bot.sendMessage(chat.id, "Неверная почта или пароль");
     }
     return await bot.sendMessage(chat.id, "Такого пользователся не существует");
+  }
+  if (text === "/cancelnotifications") {
+    const user = await User.findOneAndUpdate({ "telegram.chatId": chat.id });
+    if (user.telegram.conconnected) {
+      user.telegram.notifications = false;
+      await user.save();
+      return bot.sendMessage(chat.id, "Уведомления отключены");
+    }
+    return bot.sendMessage(
+      chat.id,
+      "Вы не подключили свой телеграм аккаунт, что бы это сделать нипишите `/auth Email Password`"
+    );
+  }
+  if (text === "/setnotifications") {
+    const user = await User.findOneAndUpdate({ "telegram.chatId": chat.id });
+    if (user.telegram.conconnected) {
+      user.telegram.notifications = true;
+      await user.save();
+      return bot.sendMessage(chat.id, "Уведомления включены");
+    }
+    return bot.sendMessage(
+      chat.id,
+      "Вы не подключили свой телеграм аккаунт, что бы это сделать нипишите `/auth Email Password`"
+    );
   }
   return await bot.sendMessage(chat.id, "Я не знаю такой команды");
 });

@@ -31,6 +31,7 @@ module.exports = class authController {
       const token = jwt.sign({ id: id, roles: roles }, process.env.JWT_KEY, {
         expiresIn: "48h",
       });
+      await University.updateMany({}, { $push: { subscribers: id } });
       return res.status(200).json({ token });
     } catch (error) {
       console.log(error);
@@ -110,6 +111,25 @@ module.exports = class authController {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
+  async unsubscribe(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { universityId } = req.body;
+      const { token } = req.headers;
+      const { id } = jwt.decode(token);
+
+      await University.findByIdAndUpdate(universityId, {
+        $pullAll: { subscribers: [id] },
+      });
+      return res.status(200).json({ message: "успех" });
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
   async getSubscribes(req, res) {
     try {
       const errors = validationResult(req);
@@ -141,6 +161,23 @@ module.exports = class authController {
 
       const university = await University.findById(universityId);
       university.comments.push({ text: text, from: id });
+      await university.save();
+      return res.status(200).json({ message: "успех" });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async rarting(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { rating, universityId } = req.body;
+
+      const university = await University.findById(universityId);
+      university.ratingCount += 1;
+      university.rating += rating;
       await university.save();
       return res.status(200).json({ message: "успех" });
     } catch (error) {

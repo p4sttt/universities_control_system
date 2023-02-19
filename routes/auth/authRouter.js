@@ -42,6 +42,12 @@ router.post(
   authMiddleware,
   controller.subscribe
 );
+router.post(
+  "/unsubscribe",
+  [body("universityId").notEmpty().isMongoId()],
+  authMiddleware,
+  controller.unsubscribe
+);
 router.get("/getSubscribes", authMiddleware, controller.getSubscribes);
 router.post(
   "/comment",
@@ -51,6 +57,18 @@ router.post(
   ],
   authMiddleware,
   controller.comment
+);
+router.post(
+  "/rating",
+  [
+    body("rating")
+      .notEmpty()
+      .isNumeric()
+      .isLength((min = 1), (max = 5)),
+    body("universityId").notEmpty().isMongoId(),
+  ],
+  authMiddleware,
+  controller.rarting
 );
 
 module.exports = router;
