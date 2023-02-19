@@ -4,7 +4,7 @@ const University = require("../../models/Univer");
 module.exports = class univeController {
   async getUniversities(req, res) {
     try {
-      const universites = await University.find({}, "title url isAccessible comments rating");
+      const universites = await University.find({}, "title url isAccessible comments rating ratingCount");
       res.status(200).json({ universites });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });

@@ -127,11 +127,11 @@ module.exports = class authController {
       const university = await University.findById(universityId);
       if (university.subscribers.includes(id)) {
         const i = university.subscribers.indexOf(id);
-        university.subscribers.slice(i, 1);
+        university.subscribers.splice(i, 1);
         await university.save();
         return res.status(200).json({ message: "успех" });
       }
-      return res.status(400).json({message: "вы не подписаны на ВУЗ"})
+      return res.status(400).json({ message: "вы не подписаны на ВУЗ" });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
@@ -181,12 +181,16 @@ module.exports = class authController {
         return res.status(400).json({ message: "ошибка валидации" });
       }
       const { rating, universityId } = req.body;
+      const { id } = jwt.decode(req.headers.token);
 
       const university = await University.findById(universityId);
-      university.ratingCount += 1;
-      university.rating += rating;
-      await university.save();
-      return res.status(200).json({ message: "успех" });
+      if (!university.ratingCount.includes(id)) {
+        university.ratingCount.push(id);
+        university.rating += rating;
+        await university.save();
+        return res.status(200).json({ message: "успех" });
+      }
+      return res.status(400).json({message: "вы уже оставили отзыв"})
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }

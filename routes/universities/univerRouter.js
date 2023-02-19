@@ -13,7 +13,7 @@ router.post(
     body("title", "Некорректное название").notEmpty(),
     body("url", "Некорректная ссылка").notEmpty().isURL(),
   ],
-  adminMiddleware,
+  // adminMiddleware,
   controller.create
 );
 
