@@ -62,7 +62,6 @@ async function sendMail({ title }) {
 let count = 0
 schedule.scheduleJob("* * */24 * *", async () => {
   console.log(Date.now())
-  count = 0
 });
 schedule.scheduleJob("*/1 * * * *", async () => {
   const universites = await University.find({});
@@ -90,7 +89,6 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         }
       });
   }
-  console.log(count)
   if(count >= universites.length/4){
     attackNotify()
   }
