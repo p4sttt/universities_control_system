@@ -174,6 +174,20 @@ module.exports = class authController {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
+  async getComments(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { universityId } = req.body;
+
+      const { comments } = await University.findById(universityId);
+      return res.status(200).json({ comments });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
   async rarting(req, res) {
     try {
       const errors = validationResult(req);
@@ -190,7 +204,7 @@ module.exports = class authController {
         await university.save();
         return res.status(200).json({ message: "успех" });
       }
-      return res.status(400).json({message: "вы уже оставили отзыв"})
+      return res.status(400).json({ message: "вы уже оставили отзыв" });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
