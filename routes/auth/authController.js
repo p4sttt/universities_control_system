@@ -104,9 +104,12 @@ module.exports = class authController {
       const { id } = jwt.decode(token);
 
       const university = await University.findById(universityId);
-      university.subscribers.push(id);
-      await university.save();
-      return res.status(200).json({ message: "успех" });
+      if (!university.subscribers.includes(id)) {
+        university.subscribers.push(id);
+        await university.save();
+        return res.status(200).json({ message: "успех" });
+      }
+      return res.status(400).json({ message: "вы уже подписаны на этот ВУЗ" });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
@@ -121,12 +124,16 @@ module.exports = class authController {
       const { token } = req.headers;
       const { id } = jwt.decode(token);
 
-      await University.findByIdAndUpdate(universityId, {
-        $pullAll: { subscribers: [id] },
-      });
-      return res.status(200).json({ message: "успех" });
+      const university = await University.findById(universityId);
+      if (university.subscribers.includes(id)) {
+        const i = university.subscribers.indexOf(id);
+        university.subscribers.slice(i, 1);
+        await university.save();
+        return res.status(200).json({ message: "успех" });
+      }
+      return res.status(400).json({message: "вы не подписаны на ВУЗ"})
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
