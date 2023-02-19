@@ -7,7 +7,7 @@ const User = new Schema({
   password: { type: String, required: true, unique: false },
   notifications: { type: Boolean, default: true },
   telegram: {
-    conconnected: { type: Boolean, default: false },
+    connected: { type: Boolean, default: false },
     notifications: { type: Boolean, default: true },
     chatId: { type: String, default: null },
   },

@@ -13,8 +13,9 @@ const toString = ({ title, url, isAccessible }) => {
 };
 
 const sendNotify = async (university, isWorkingNow) => {
-  for (let user of university.subscribers) {
-    if (user.telegram.conconnected && user.telegram.notifications) {
+  for (let id of university.subscribers) {
+    const user = await User.findById(id)
+    if (user.telegram.connected && user.telegram.notifications) {
       if (isWorkingNow) {
         await bot.sendMessage(
           user.telegram.chatId,
@@ -75,8 +76,10 @@ bot.on("message", async (msg) => {
     const email = text.split(" ")[1];
     const password = text.split(" ")[2];
     const user = await User.findOne({ email: email });
+    await bot.sendMessage(chat.id, `${email}, ${password}`)
+    console.log(user)
     if (user) {
-      if (user.conconnectedTelegram) {
+      if (user.telegram.connected) {
         return await bot.sendMessage(
           chat.id,
           "У этого пользователся уже подключен telegram"
@@ -86,7 +89,7 @@ bot.on("message", async (msg) => {
       const validPassword = bcrypt.compareSync(password, hashPassword);
       if (validPassword) {
         user.telegram.chatId = chat.id;
-        user.telegram.conconnected = true;
+        user.telegram.connected = true;
         await user.save();
         await bot.sendMessage(chat.id, "Авторизация прошла успешно");
         return await bot.sendMessage(
@@ -101,7 +104,7 @@ bot.on("message", async (msg) => {
   }
   if (text === "/cancelnotifications") {
     const user = await User.findOneAndUpdate({ "telegram.chatId": chat.id });
-    if (user.telegram.conconnected) {
+    if (user.telegram.connected) {
       user.telegram.notifications = false;
       await user.save();
       return bot.sendMessage(chat.id, "Уведомления отключены");
@@ -113,7 +116,7 @@ bot.on("message", async (msg) => {
   }
   if (text === "/setnotifications") {
     const user = await User.findOneAndUpdate({ "telegram.chatId": chat.id });
-    if (user.telegram.conconnected) {
+    if (user.telegram.connected) {
       user.telegram.notifications = true;
       await user.save();
       return bot.sendMessage(chat.id, "Уведомления включены");

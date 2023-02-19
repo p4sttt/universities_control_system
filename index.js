@@ -57,11 +57,11 @@ async function sendMail({ title }) {
   });
 }
 
-schedule.scheduleJob("*/1 * * * *", async () => {
+schedule.scheduleJob("*/2 * * * *", async () => {
   const universites = await University.find({});
   for (let university of universites) {
     const { url, _id } = university;
-    const isAccessibleLast = await University.findById(_id, "isAccessible");
+    const isAccessibleLast = university.isAccessible
     axios
       .get(url)
       .then(async (res) => {
@@ -69,6 +69,7 @@ schedule.scheduleJob("*/1 * * * *", async () => {
           $set: { isAccessible: true },
         });
         if (isAccessibleLast == false) {
+          console.log("починился")
           sendNotify(university, true);
         }
       })
@@ -77,6 +78,7 @@ schedule.scheduleJob("*/1 * * * *", async () => {
           $set: { isAccessible: false },
         });
         if (isAccessibleLast == true) {
+          console.log("сломался")
           sendNotify(university, false);
         }
       });

@@ -28,9 +28,14 @@ module.exports = class authController {
       await user.save();
       const id = user._id;
       const roles = user.roles;
-      const token = jwt.sign({ id: id, roles: roles }, process.env.JWT_KEY, {
-        expiresIn: "48h",
-      });
+      const nameU = user.name;
+      const token = jwt.sign(
+        { name: nameU, id: id, roles: roles },
+        process.env.JWT_KEY,
+        {
+          expiresIn: "48h",
+        }
+      );
       await University.updateMany({}, { $push: { subscribers: id } });
       return res.status(200).json({ token });
     } catch (error) {
