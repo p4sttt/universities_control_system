@@ -60,16 +60,15 @@ async function sendMail({ title }) {
 
 //воркеры
 let count = 0
-schedule.scheduleJob("* * */24 * *", async () => {
-  console.log(Date.now())
+schedule.scheduleJob("* */1 * *", async () => {
   count = 0
 });
-schedule.scheduleJob("*/1 * * * *", async () => {
+schedule.scheduleJob("*/2 * * * *", async () => {
   const universites = await University.find({});
   for (let university of universites) {
     const { url, _id } = university;
     const isAccessibleLast = university.isAccessible;
-    await axios
+    axios
       .get(url)
       .then(async (res) => {
         await University.findByIdAndUpdate(_id, {
@@ -90,7 +89,6 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         }
       });
   }
-  console.log(count)
   if(count >= universites.length/4){
     attackNotify()
   }
