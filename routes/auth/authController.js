@@ -37,7 +37,7 @@ module.exports = class authController {
         }
       );
       await University.updateMany({}, { $push: { subscribers: id } });
-      return res.status(200).json({ token });
+      return res.status(200).json({ token: token, name: nameU, roles });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
@@ -62,10 +62,15 @@ module.exports = class authController {
       }
       const id = user._id;
       const roles = user.roles;
-      const token = jwt.sign({ id: id, roles: roles }, process.env.JWT_KEY, {
-        expiresIn: "48h",
-      });
-      return res.status(200).json({ token });
+      const nameU = user.name;
+      const token = jwt.sign(
+        { name: nameU, id: id, roles: roles },
+        process.env.JWT_KEY,
+        {
+          expiresIn: "48h",
+        }
+      );
+      return res.status(200).json({ token: token, name: nameU, roles });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
