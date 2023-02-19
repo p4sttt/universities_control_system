@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const University = require("./models/Univer");
 const User = require("./models/User");
 const { default: axios } = require("axios");
-const { bot, sendNotify, attackNotify } = require("./telegram");
+const { bot, sendNotify } = require("./telegram");
 
 require("dotenv").config();
 
@@ -57,17 +57,11 @@ async function sendMail({ title }) {
   });
 }
 
-
-//воркеры
-let count = 0
-schedule.scheduleJob("* */1 * *", async () => {
-  count = 0
-});
 schedule.scheduleJob("*/2 * * * *", async () => {
   const universites = await University.find({});
   for (let university of universites) {
     const { url, _id } = university;
-    const isAccessibleLast = university.isAccessible;
+    const isAccessibleLast = university.isAccessible
     axios
       .get(url)
       .then(async (res) => {
@@ -75,8 +69,8 @@ schedule.scheduleJob("*/2 * * * *", async () => {
           $set: { isAccessible: true },
         });
         if (isAccessibleLast == false) {
+          console.log("починился")
           sendNotify(university, true);
-          count-=1
         }
       })
       .catch(async (res) => {
@@ -84,16 +78,12 @@ schedule.scheduleJob("*/2 * * * *", async () => {
           $set: { isAccessible: false },
         });
         if (isAccessibleLast == true) {
+          console.log("сломался")
           sendNotify(university, false);
-          count+=1
         }
       });
   }
-  if(count >= universites.length/4){
-    attackNotify()
-  }
 });
-
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true });
