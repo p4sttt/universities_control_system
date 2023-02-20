@@ -62,7 +62,6 @@ router.post(
 router.post(
   "/getComments",
   [body("universityId").notEmpty().isMongoId()],
-  authMiddleware,
   controller.getComments
 );
 router.post(
@@ -95,7 +94,6 @@ router.post(
 router.post(
   "/getRating",
   [body("universityId").notEmpty().isMongoId()],
-  authMiddleware,
   controller.gerRating
 );
 
