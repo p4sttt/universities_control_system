@@ -30,7 +30,6 @@ router.post(
   ],
   controller.login
 );
-router.post("/admin", controller.addAdminPermission);
 router.post(
   "/notifications",
   [body("set").notEmpty().isBoolean()],
