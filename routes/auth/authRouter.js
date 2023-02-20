@@ -82,10 +82,7 @@ router.post(
 router.post(
   "/rating",
   [
-    body("rating")
-      .notEmpty()
-      .isNumeric()
-      .isLength((min = 1), (max = 5)),
+    body("rating").notEmpty().isNumeric().isLength({ min: 1, max: 5 }),
     body("universityId").notEmpty().isMongoId(),
   ],
   authMiddleware,

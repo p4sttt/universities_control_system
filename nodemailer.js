@@ -16,13 +16,11 @@ const transporter = nodemailer.createTransport(
   }
 );
 
-function sendEmail(message) {
-  transporter.sendMail(message);
-}
+const sendEmail = (options) => transporter.sendMail(options);
 
 const notifyEmail = async (university, isWorkingNow) => {
-  try {
-    for (let id of university.subscribers) {
+  for (let id of university.subscribers) {
+    try {
       const user = await User.findById(id);
       if (user.notifications) {
         if (isWorkingNow) {
@@ -39,9 +37,9 @@ const notifyEmail = async (university, isWorkingNow) => {
           });
         }
       }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
   }
 };
 
