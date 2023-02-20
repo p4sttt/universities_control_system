@@ -60,9 +60,7 @@ router.post(
 );
 router.post(
   "/getComment",
-  [
-    body("universityId").notEmpty().isMongoId(),
-  ],
+  [body("universityId").notEmpty().isMongoId()],
   authMiddleware,
   controller.getComments
 );
@@ -77,6 +75,12 @@ router.post(
   ],
   authMiddleware,
   controller.rarting
+);
+router.post(
+  "/getRating",
+  [body("universityId").notEmpty().isMongoId()],
+  authMiddleware,
+  controller.gerRating
 );
 
 module.exports = router;

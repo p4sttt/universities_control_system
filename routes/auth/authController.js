@@ -219,4 +219,19 @@ module.exports = class authController {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
   }
+  async gerRating(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { universityId } = req.body;
+      const {rating, ratingCount} = await University.findById(universityId)
+      const ratingRes = rating/ratingCount ? rating/ratingCount : 0
+
+      return res.status(200).json({rating: ratingRes})
+    } catch (error) {
+      
+    }
+  }
 };
