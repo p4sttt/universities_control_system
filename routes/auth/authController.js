@@ -268,7 +268,8 @@ module.exports = class authController {
       }
       const { universityId } = req.body;
       const { rating, ratingCount } = await University.findById(universityId);
-      const ratingRes = rating / ratingCount ? rating / ratingCount : 0;
+      const ratingRes = rating / ratingCount.length ? rating / ratingCount.length : 0;
+      console.log()
 
       return res.status(200).json({ rating: ratingRes });
     } catch (error) {}
