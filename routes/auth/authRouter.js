@@ -60,13 +60,13 @@ router.post(
   controller.comment
 );
 router.post(
-  "/getComment",
+  "/getComments",
   [body("universityId").notEmpty().isMongoId()],
   authMiddleware,
   controller.getComments
 );
 router.post(
-  "/getAllComment",
+  "/getAllComments",
   [body("universityId").notEmpty().isMongoId()],
   adminMiddleware,
   controller.getAllComments

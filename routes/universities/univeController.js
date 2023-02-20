@@ -13,7 +13,7 @@ module.exports = class univeController {
       for (let university of universitesList) {
         const { _id, title, url, isAccessible, rating, ratingCount } =
           university;
-        const comments = await Comment.find({_id: _id, verified: true})
+        const comments = await Comment.find({universityId: _id, verified: true})
         const ratinG =
           rating / ratingCount.length ? rating / ratingCount.length : 0;
         universities.push({

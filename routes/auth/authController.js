@@ -197,7 +197,7 @@ module.exports = class authController {
       const { universityId } = req.body;
 
       const comments = await Comment.find({
-        _id: universityId,
+        universityId: universityId,
         verified: true,
       });
       return res.status(200).json({ comments });
@@ -213,7 +213,7 @@ module.exports = class authController {
       }
       const { universityId } = req.body;
 
-      const comments = await Comment.find({ _id: universityId });
+      const comments = await Comment.find({ universityId: universityId });
       return res.status(200).json({ comments });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
