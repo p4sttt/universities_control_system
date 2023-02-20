@@ -2,11 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
-const nodemailer = require("nodemailer");
 const University = require("./models/Univer");
-const User = require("./models/User");
 const { default: axios } = require("axios");
-const { bot, sendNotify, attackNotify } = require("./telegram");
+const { sendNotify, attackNotify } = require("./telegram");
+const { notifyEmail, attackEmail } = require("./nodemailer");
 
 require("dotenv").config();
 
@@ -26,42 +25,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/university", univerRouter);
 app.use("/api/application", applicationRouter);
 
-async function sendMail({ title }) {
-  const mailsDB = await User.find({}, "email");
-  let mails = [];
-  for (let mail in mailsDB) {
-    mails.push(mail.email);
-  }
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: "587",
-    secure: false,
-    auth: {
-      user: "universitycontrolsystem@gmail.com",
-      pass: "X3C-zgP-b5N-2t6",
-    },
-  });
-  const mailOptions = {
-    from: "universitycontrolsystem@gmail.com",
-    to: mails,
-    subject: "Сайт университета временно недоступен",
-    text: `сайт университета ${title} временно недоступен`,
-  };
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(f`mail send ${info.response}`);
-    }
-  });
-}
-
-
 //воркеры
-let count = 0
+let count = 0;
 schedule.scheduleJob("* * */24 * *", async () => {
-  console.log(Date.now())
+  console.log(Date.now());
 });
 schedule.scheduleJob("*/1 * * * *", async () => {
   const universites = await University.find({});
@@ -76,7 +43,7 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         });
         if (isAccessibleLast == false) {
           sendNotify(university, true);
-          count-=1
+          notifyEmail(university, true);
         }
       })
       .catch(async (res) => {
@@ -85,15 +52,16 @@ schedule.scheduleJob("*/1 * * * *", async () => {
         });
         if (isAccessibleLast == true) {
           sendNotify(university, false);
-          count+=1
+          notifyEmail(university, false);
+          count += 1;
         }
       });
   }
-  if(count >= universites.length/4){
-    attackNotify()
+  if (count >= universites.length / 4) {
+    attackNotify();
+    attackEmail();
   }
 });
-
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true });

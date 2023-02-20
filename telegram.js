@@ -54,7 +54,7 @@ const attackNotify = async () => {
     );
     return await bot.sendMessage(
       user.telegram.chatId,
-      "Происходит ддос атака на сайты ВУЗов"
+      "К сожалению сайты ВУЗов подверглись ддос атаке и временно не работают"
     );
   }
 };
