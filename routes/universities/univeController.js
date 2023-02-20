@@ -1,22 +1,29 @@
 const { validationResult } = require("express-validator");
 const University = require("../../models/Univer");
+const Comment = require("../../models/Comment");
 
 module.exports = class univeController {
   async getUniversities(req, res) {
     try {
-      const universitesList = await University.find({}, "title url isAccessible comments rating ratingCount");
-      const universities = []
-      for(let university of universitesList){
-        const {_id, title, url, isAccessible, comments, rating, ratingCount} = university
-        const ratinG = rating/ratingCount.length ? rating/ratingCount.length : 0
+      const universitesList = await University.find(
+        {},
+        "title url isAccessible rating ratingCount"
+      );
+      const universities = [];
+      for (let university of universitesList) {
+        const { _id, title, url, isAccessible, rating, ratingCount } =
+          university;
+        const comments = await Comment.find({_id: _id, verified: true})
+        const ratinG =
+          rating / ratingCount.length ? rating / ratingCount.length : 0;
         universities.push({
           _id: _id,
           title: title,
           url: url,
           isAccessible: isAccessible,
           comments: comments,
-          rating: ratinG
-        })
+          rating: ratinG,
+        });
       }
       res.status(200).json({ universities });
     } catch (error) {
@@ -25,9 +32,9 @@ module.exports = class univeController {
   }
   async create(req, res) {
     try {
-      const errors = validationResult(req)
-      if(!errors.isEmpty()){
-        return res.status(400).json({message: "ошибка валидации"})
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
       }
       const { title, url } = req.body;
       const union = new University({

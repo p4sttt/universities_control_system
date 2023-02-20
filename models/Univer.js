@@ -8,12 +8,6 @@ const Univer = new Schema({
   rating: { type: Number, default: 0.0 },
   ratingCount: [{ type: mongoose.Types.ObjectId }],
   subscribers: [{ type: mongoose.Types.ObjectId }],
-  comments: [
-    {
-      text: { type: String, required: false, unique: false },
-      from: { type: mongoose.Types.ObjectId, require: false, unique: false },
-    },
-  ],
 });
 
 module.exports = mongoose.model("University", Univer);

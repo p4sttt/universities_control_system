@@ -2,6 +2,7 @@ const Router = require("express");
 const { body } = require("express-validator");
 const authController = require("./authController");
 const authMiddleware = require("../middlewares/authMiddleware");
+const adminMiddleware = require("../middlewares/adminMiddleware");
 
 const router = Router();
 const controller = new authController();
@@ -63,6 +64,21 @@ router.post(
   [body("universityId").notEmpty().isMongoId()],
   authMiddleware,
   controller.getComments
+);
+router.post(
+  "/getAllComment",
+  [body("universityId").notEmpty().isMongoId()],
+  adminMiddleware,
+  controller.getAllComments
+);
+router.post(
+  "/checkComment",
+  [
+    body("commentId").notEmpty().isMongoId(),
+    body("set").notEmpty().isBoolean(),
+  ],
+  adminMiddleware,
+  controller.checkComment
 );
 router.post(
   "/rating",

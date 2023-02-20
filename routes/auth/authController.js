@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const Role = require("../../models/Role");
 const User = require("../../models/User");
 const University = require("../../models/Univer");
+const Comment = require("../../models/Comment");
 
 module.exports = class authController {
   async register(req, res) {
@@ -75,7 +76,7 @@ module.exports = class authController {
       console.log(error);
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
-  } 
+  }
   async addAdminPermission(req, res) {
     try {
       const id = req.body.id;
@@ -176,9 +177,12 @@ module.exports = class authController {
       const { token } = req.headers;
       const { id } = jwt.decode(token);
 
-      const university = await University.findById(universityId);
-      university.comments.push({ text: text, from: id });
-      await university.save();
+      const comment = new Comment({
+        text: text,
+        from: id,
+        universityId: universityId,
+      });
+      await comment.save();
       return res.status(200).json({ message: "успех" });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
@@ -192,8 +196,45 @@ module.exports = class authController {
       }
       const { universityId } = req.body;
 
-      const { comments } = await University.findById(universityId);
+      const comments = await Comment.find({
+        _id: universityId,
+        verified: true,
+      });
       return res.status(200).json({ comments });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async getAllComments(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { universityId } = req.body;
+
+      const comments = await Comment.find({ _id: universityId });
+      return res.status(200).json({ comments });
+    } catch (error) {
+      res.status(500).json({ message: "Что-то пошло не так :(" });
+    }
+  }
+  async checkComment(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "ошибка валидации" });
+      }
+      const { commentId, set } = req.body;
+
+      const comment = await Comment.findById(commentId);
+      if (set) {
+        comment.verified = true;
+        await comment.save();
+      } else {
+        await comment.delete();
+      }
+      return res.status(200).json({ message: "успех" });
     } catch (error) {
       res.status(500).json({ message: "Что-то пошло не так :(" });
     }
@@ -226,12 +267,10 @@ module.exports = class authController {
         return res.status(400).json({ message: "ошибка валидации" });
       }
       const { universityId } = req.body;
-      const {rating, ratingCount} = await University.findById(universityId)
-      const ratingRes = rating/ratingCount ? rating/ratingCount : 0
+      const { rating, ratingCount } = await University.findById(universityId);
+      const ratingRes = rating / ratingCount ? rating / ratingCount : 0;
 
-      return res.status(200).json({rating: ratingRes})
-    } catch (error) {
-      
-    }
+      return res.status(200).json({ rating: ratingRes });
+    } catch (error) {}
   }
 };
